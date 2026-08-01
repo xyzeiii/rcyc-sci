@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>RCYC Interactive - Monsters Inc. Edition</title>
+
+<style>
+/* ===== GLOBAL / MONSTERS INC. SCARE FLOOR THEME ===== */
+body {
+  margin: 0;
+  background-color: #0b252b;
+  background-image: 
+    radial-gradient(circle at 50% 40%, rgba(18, 55, 63, 0.9) 0%, rgba(6, 20, 24, 0.98) 100%),
+    repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(0, 0, 0, 0.1) 40px, rgba(0, 0, 0, 0.1) 80px);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  cursor: url('https://cur.cursors-4u.net/cursors/cur-2/cur116.cur'), auto;
+  perspective: 1200px;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  position: relative;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* 🔵🟢 SULLEY & MIKE HAZARD STRIPES */
+body::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 6px;
+  background: repeating-linear-gradient(45deg, #29b6f6, #29b6f6 12px, #76ff03 12px, #76ff03 24px, #111111 24px, #111111 36px);
+  z-index: 1001;
+  box-shadow: 0 2px 6px rgba(41, 182, 246, 0.4);
+}
+
+body::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; width: 100%; height: 6px;
+  background: repeating-linear-gradient(45deg, #29b6f6, #29b6f6 12px, #76ff03 12px, #76ff03 24px, #111111 24px, #111111 36px);
+  z-index: 1001;
+  box-shadow: 0 -2px 6px rgba(41, 182, 246, 0.4);
+}
+
+/* 🏭 INDUSTRIAL SCARE FLOOR ELEMENTS */
+.factory-bg-elements {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.factory-bg-elements::before {
+  content: '';
+  position: absolute;
+  top: 6px; left: 0; width: 100%; height: 14px;
+  background: linear-gradient(to bottom, #1a3b44, #081419, #040a0c);
+  border-bottom: 2px solid #2e5c6a;
+}
+
+/* ===== ✨ LUXURY SLIDING & BLUR MOTION TRANSITION ENGINE ===== */
+.screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transform: scale(0.93) translateY(15px);
+  filter: blur(8px);
+  pointer-events: none;
+  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+              transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+              filter 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform, filter;
+  z-index: 2;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.screen.active {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+  filter: blur(0px);
+  pointer-events: auto;
+}
+
+/* ===== MAIN DOOR ===== */
+#mainDoor img {
+  width: min(55vw, 210px);
+  max-height: 60vh;
+  object-fit: contain;
+  cursor: pointer;
+  transform-origin: left center;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), filter 0.3s;
+  filter: drop-shadow(0 12px 25px rgba(0,0,0,0.8));
+}
+
+#mainDoor img:hover {
+  filter: drop-shadow(0 0 20px rgba(41, 182, 246, 0.6)) brightness(1.1);
+  transform: scale(1.03);
+}
+
+/* ===== ROOM VIEW & CONTAINER ===== */
+.room-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 95vw;
+  max-height: 90vh;
+}
+
+.room-container {
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+  height: min(68vh, 520px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(10, 30, 36, 0.95);
+  border: 3px solid #1e4d58;
+  border-radius: 12px;
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.8), 
+    inset 0 0 25px rgba(0, 0, 0, 0.9),
+    0 0 15px rgba(41, 182, 246, 0.15);
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+.room-container::before, .room-container::after {
+  content: '⊗';
+  position: absolute;
+  color: #3b7a8c;
+  font-size: 12px;
+  font-weight: bold;
+}
+.room-container::before { top: 6px; left: 8px; }
+.room-container::after { top: 6px; right: 8px; }
+
+.room {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 6px;
+}
+
+/* 🎯 CLICK HINT */
+.click-hint {
+  background: rgba(11, 37, 43, 0.95);
+  color: #e1f5fe;
+  padding: 5px 16px;
+  border-radius: 20px;
+  font-size: min(3.5vw, 13px);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  border: 1px solid rgba(41, 182, 246, 0.4);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  animation: pulseGlow 1.8s infinite ease-in-out;
+  text-align: center;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { transform: translateY(0); opacity: 0.85; }
+  50% { transform: translateY(-2px); opacity: 1; border-color: rgba(41, 182, 246, 0.9); }
+}
+
+/* ===== DOORS GRID (OPTIMIZED FOR PHONES) ===== */
+.doors-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: min(4vw, 16px) min(5vw, 24px);
+  width: 100%;
+  max-width: 420px;
+  justify-items: center;
+  align-items: center;
+  background: rgba(11, 37, 43, 0.85);
+  padding: min(4vw, 20px);
+  border-radius: 14px;
+  border: 2px dashed rgba(41, 182, 246, 0.35);
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.6);
+  box-sizing: border-box;
+}
+
+/* ===== DOORS ===== */
+.doors-grid img {
+  width: min(22vw, 76px);
+  max-height: 120px;
+  object-fit: contain;
+  cursor: pointer;
+  transform-origin: left center;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), filter 0.3s;
+  filter: drop-shadow(0 6px 12px rgba(0,0,0,0.7));
+}
+
+.doors-grid img:hover {
+  transform: scale(1.08);
+  filter: drop-shadow(0 0 15px rgba(41, 182, 246, 0.7)) brightness(1.15);
+}
+
+/* 🚪 DOOR OPEN ANIMATION */
+.opening {
+  transform: rotateY(-85deg) !important;
+}
+
+/* ZOOM */
+.zoom {
+  transform: scale(2.2);
+  opacity: 0;
+  filter: blur(4px);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease-in, filter 0.2s ease-in;
+}
+
+/* ===== INDUSTRIAL HUD BUTTONS ===== */
+button {
+  padding: min(2.5vw, 10px) min(6vw, 22px);
+  background: linear-gradient(135deg, #1e4d58, #0b252b);
+  color: #e1f5fe;
+  border: 1px solid rgba(41, 182, 246, 0.4);
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: min(3.8vw, 14px);
+  letter-spacing: 0.8px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+button:hover {
+  background: linear-gradient(135deg, #2e6b7a, #1e4d58);
+  border-color: #29b6f6;
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 0 12px rgba(41, 182, 246, 0.5);
+}
+
+/* Committees / Proceed button */
+.proceed {
+  background: linear-gradient(135deg, #29b6f6, #0288d1);
+  color: #061418;
+  border-color: #29b6f6;
+  font-size: min(4vw, 15px);
+  padding: min(3vw, 12px) min(8vw, 30px);
+}
+.proceed:hover {
+  background: linear-gradient(135deg, #4fc3f7, #29b6f6);
+  box-shadow: 0 0 18px rgba(41, 182, 246, 0.8);
+  color: #000;
+}
+
+/* 🏠 HOME NAVIGATION BUTTON */
+.home-btn {
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  padding: 8px 14px;
+  background: linear-gradient(135deg, #1e4d58, #0b252b);
+  color: #e1f5fe;
+  border: 1px solid rgba(41, 182, 246, 0.4);
+  border-radius: 18px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: min(3.5vw, 12px);
+  letter-spacing: 0.6px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.4);
+  z-index: 1002;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s ease;
+}
+
+.home-btn:hover {
+  background: linear-gradient(135deg, #2e6b7a, #1e4d58);
+  border-color: #29b6f6;
+  transform: translateY(-2px);
+}
+
+/* 🚨 EMERGENCY ALERT BUTTON WITH PULSING INDICATOR */
+.exit {
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  width: min(11vw, 46px);
+  height: min(11vw, 46px);
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff4d4d, #9b2c2c);
+  color: white;
+  font-size: min(4.5vw, 18px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 16px rgba(255, 77, 77, 0.6);
+  cursor: pointer;
+  z-index: 1002;
+  border: 2px solid rgba(255,255,255,0.6);
+  animation: emergencyPulse 1.5s infinite;
+  transition: transform 0.2s;
+}
+
+.exit:hover {
+  transform: scale(1.1);
+}
+
+@keyframes emergencyPulse {
+  0% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.7), 0 4px 16px rgba(255, 77, 77, 0.6); }
+  70% { box-shadow: 0 0 0 10px rgba(255, 77, 77, 0), 0 4px 16px rgba(255, 77, 77, 0.6); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0), 0 4px 16px rgba(255, 77, 77, 0.6); }
+}
+</style>
+</head>
+
+<body>
+
+<!-- Background industrial decor layer -->
+<div class="factory-bg-elements"></div>
+
+<audio id="clickSound" src="click.mp3" onerror="console.log('Audio file missing.');"></audio>
+
+<!-- MAIN DOOR -->
+<div id="mainDoor" class="screen active">
+  <img src="images/door-main.png" onclick="enterMain(this)" alt="Main Door" onerror="this.style.background='#a52a2a'; this.style.width='130px'; this.style.height='200px';">
+</div>
+
+<!-- MAIN ROOM -->
+<div id="mainRoom" class="screen">
+  <div class="home-btn" onclick="goHome()">🏠 Home</div>
+  <div class="room-wrapper">
+    <div class="room-container">
+      <img src="images/room-main.png" class="room" alt="Main Room" onerror="this.style.background='#d2b48c';">
+    </div>
+    <div class="click-hint">▲ Click Committees Below to Enter the Scare Floor</div>
+    <button class="proceed" onclick="goDoors()">Committees</button>
+  </div>
+  <div class="exit" onclick="goToExit()" title="Emergency Exit">🚨</div>
+</div>
+
+<!-- DOORS -->
+<div id="doorsScreen" class="screen">
+  <div class="home-btn" onclick="goHome()">🏠 Home</div>
+  <div class="doors-grid" id="doorsGridContainer">
+    <img src="images/door1.png" onclick="openDoor(this,1)" alt="Door 1" onerror="this.style.background='#654321'; this.style.width='65px'; this.style.height='95px';">
+    <img src="images/door2.png" onclick="openDoor(this,2)" alt="Door 2" onerror="this.style.background='#654321'; this.style.width='65px'; this.style.height='95px';">
+    <img src="images/door3.png" onclick="openDoor(this,3)" alt="Door 3" onerror="this.style.background='#654321'; this.style.width='65px'; this.style.height='95px';">
+    <img src="images/door4.png" onclick="openDoor(this,4)" alt="Door 4" onerror="this.style.background='#654321'; this.style.width='65px'; this.style.height='95px';">
+    <img src="images/door5.png" onclick="openDoor(this,5)" alt="Door 5" onerror="this.style.background='#654321'; this.style.width='65px'; this.style.height='95px';">
+    <img src="images/door6.png" onclick="openDoor(this,6)" alt="Door 6" onerror="this.style.background='#654321'; this.style.width='65px'; this.style.height='95px';">
+    <img src="images/door7.png" onclick="openDoor(this,7)" alt="Door 7" onerror="this.style.background='#654321'; this.style.width='65px'; this.style.height='95px';">
+    <img src="images/door8.png" onclick="openDoor(this,8)" alt="Door 8" onerror="this.style.background='#654321'; this.style.width='65px'; this.style.height='95px';">
+    <img src="images/door9.png" onclick="openDoor(this,9)" alt="Door 9" onerror="this.style.background='#654321'; this.style.width='65px'; this.style.height='95px';">
+  </div>
+  <div class="exit" onclick="goToExit()" title="Emergency Exit">🚨</div>
+</div>
+
+<!-- ROOM VIEW -->
+<div id="roomScreen" class="screen">
+  <div class="home-btn" onclick="goHome()">🏠 Home</div>
+  <div class="room-wrapper">
+    <div class="room-container">
+      <img id="roomImage" class="room" alt="Room View" onerror="this.style.background='#deb887';">
+    </div>
+    <button class="back" onclick="backToDoors()">⬅ Back to Committees</button>
+  </div>
+  <div class="exit" onclick="goToExit()" title="Emergency Exit">🚨</div>
+</div>
+
+<!-- EMERGENCY -->
+<div id="exitScreen" class="screen">
+  <div class="room-wrapper">
+    <div class="room-container">
+      <img src="images/emergency.png" class="room" alt="Emergency" onerror="this.style.background='#800000';">
+    </div>
+    <button class="back" onclick="goHome()">🏠 Return Home</button>
+  </div>
+</div>
+
+<script>
+/* SOUND */
+function playSound() {
+  const sound = document.getElementById("clickSound");
+  if (sound) {
+    sound.currentTime = 0;
+    sound.play().catch(e => console.log("Audio play blocked or file missing."));
+  }
+}
+
+/* HIGH-END CINEMATIC BLUR-SLIDE TRANSITION ENGINE */
+function switchScreen(next) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  const target = document.getElementById(next);
+  if (target) {
+    target.classList.add("active");
+  }
+}
+
+/* RESET ALL DOORS */
+function resetDoors() {
+  document.querySelectorAll(".doors-grid img, #mainDoor img").forEach(img => {
+    img.classList.remove("opening", "zoom");
+    img.style.opacity = "1";
+  });
+}
+
+/* MAIN DOOR */
+function enterMain(el) {
+  playSound();
+  el.classList.add("opening");
+
+  setTimeout(() => {
+    switchScreen("mainRoom");
+  }, 200);
+}
+
+/* GO TO DOORS */
+function goDoors() {
+  playSound();
+  resetDoors();
+  switchScreen("doorsScreen");
+}
+
+/* CINEMATIC OPEN */
+function openDoor(el, num) {
+  playSound();
+  el.classList.add("opening");
+
+  setTimeout(() => {
+    el.classList.add("zoom");
+  }, 80);
+
+  setTimeout(() => {
+    const roomImg = document.getElementById("roomImage");
+    if (roomImg) {
+      roomImg.src = `images/room${num}.png`;
+    }
+    switchScreen("roomScreen");
+  }, 250);
+}
+
+/* BACK */
+function backToDoors() {
+  playSound();
+  resetDoors();
+  switchScreen("doorsScreen");
+}
+
+/* EXIT */
+function goToExit() {
+  playSound();
+  resetDoors();
+  switchScreen("exitScreen");
+}
+
+/* HOME */
+function goHome() {
+  playSound();
+  resetDoors();
+  switchScreen("mainDoor");
+}
+</script>
+
+</body>
+</html>
